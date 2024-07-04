@@ -17,7 +17,7 @@ const Contact = () => {
 
   return (
     <section id="contact" className="bg-light">
-      <Container>
+      <Container data-aos="fade-up">
         <h2 className="text-center mb-4">Contact Me</h2>
         <Form onSubmit={handleSubmit} name="submit-to-google-sheet">
           <Form.Group>
