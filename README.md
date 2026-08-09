@@ -1,8 +1,20 @@
-# React + Vite
+# Rahul Mishra — Backend Engineering Portfolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A responsive React 19 + TypeScript portfolio with Framer Motion animations and Tailwind CSS utilities. Content lives in `src/data/portfolio.ts`; update that one file for projects, experience, skills, links, and gallery entries.
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+npm install
+npm run dev
+```
+
+Build a production bundle with `npm run build`.
+
+## Deploy
+
+- **Vercel:** import the repository; build command is `npm run build`, output is `dist`.
+- **Netlify:** import the repository; `netlify.toml` applies the correct build and SPA redirect.
+- **GitHub Pages:** enable GitHub Pages with **GitHub Actions** as the source; the included workflow deploys pushes to `main`.
+
+Before deploying, add real assets as described in `public/images/README.md` and replace `public/resume.pdf` with a real PDF.

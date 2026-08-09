@@ -1,0 +1,48 @@
+import { FormEvent, useEffect, useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { ArrowDownRight, ArrowUpRight, Award, Code2, ExternalLink, Github, Layers3, Linkedin, Mail, Menu, Moon, Send, Sun, X } from 'lucide-react'
+import { SiHaskell, SiPostgresql, SiPython, SiRedis } from 'react-icons/si'
+import { FaJava } from 'react-icons/fa'
+import { Counter } from './components/Counter'
+import { Section } from './components/Section'
+import { Typewriter } from './components/Typewriter'
+import { achievements, experience, gallery, impact, profile, projects, skills } from './data/portfolio'
+
+const nav = ['About', 'Experience', 'Work', 'Contact']
+const tech = [{ icon: FaJava, name: 'Java' }, { icon: SiPython, name: 'Python' }, { icon: SiRedis, name: 'Redis' }, { icon: SiPostgresql, name: 'PostgreSQL' }, { icon: SiHaskell, name: 'Haskell' }]
+
+export default function App() {
+  const [dark, setDark] = useState(true), [open, setOpen] = useState(false), [active, setActive] = useState(''), [filter, setFilter] = useState('All'), [lightbox, setLightbox] = useState<string | null>(null), [sent, setSent] = useState(false)
+  useEffect(() => { document.documentElement.dataset.theme = dark ? 'dark' : 'light' }, [dark])
+  useEffect(() => { const onScroll = () => { const visible = nav.map(n => document.getElementById(n.toLowerCase() === 'work' ? 'projects' : n.toLowerCase())).find(el => el && el.getBoundingClientRect().top < 160 && el.getBoundingClientRect().bottom > 160); setActive(visible?.id || '') }; onScroll(); window.addEventListener('scroll', onScroll); return () => window.removeEventListener('scroll', onScroll) }, [])
+  const categories = ['All', ...new Set(projects.map(p => p.category))]
+  const filtered = useMemo(() => filter === 'All' ? projects : projects.filter(p => p.category === filter), [filter])
+  const submit = (e: FormEvent<HTMLFormElement>) => { e.preventDefault(); setSent(true); e.currentTarget.reset() }
+  const imageFallback = (e: React.SyntheticEvent<HTMLImageElement>) => { e.currentTarget.style.display = 'none'; e.currentTarget.parentElement?.classList.add('image-fallback') }
+
+  return <main>
+    <header className="navbar"><a href="#home" className="brand" aria-label="Home">RM<span>.</span></a><nav className={open ? 'nav-links open' : 'nav-links'}>{nav.map(item => { const id = item === 'Work' ? 'projects' : item.toLowerCase(); return <a key={item} className={active === id ? 'active' : ''} onClick={() => setOpen(false)} href={`#${id}`}>{item}</a> })}</nav><div className="nav-actions"><button className="icon-button" onClick={() => setDark(!dark)} aria-label="Toggle color theme">{dark ? <Sun size={17} /> : <Moon size={17} />}</button><a className="nav-cta" href="#contact">Let’s talk <ArrowUpRight size={15} /></a><button className="mobile-toggle icon-button" onClick={() => setOpen(!open)} aria-label="Open navigation">{open ? <X /> : <Menu />}</button></div></header>
+
+    <section id="home" className="hero"><div className="orb orb-one" /><div className="orb orb-two" /><div className="hero-copy"><motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .6 }}><p className="status"><i /> {profile.availability}</p><h1>Build systems<br /><em>that scale.</em></h1><p className="hero-text">I’m {profile.name}, a software engineer crafting <Typewriter /></p><div className="hero-actions"><a className="button primary" href="#projects">Explore my work <ArrowDownRight size={18} /></a><a className="button quiet" href={profile.socials.github} target="_blank" rel="noreferrer"><Github size={18} /> GitHub</a></div></motion.div></div><motion.div className="profile-card" initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: .15, duration: .6 }}><div className="profile-image"><img src="/images/profile.jpg" alt="Rahul Kumar Mishra" onError={imageFallback} /><span>RM</span></div><div><p>Currently focused on</p><strong>Payment infrastructure<br />& distributed systems</strong></div><Code2 className="card-symbol" /></motion.div><div className="scroll-note">Scroll to discover <span /></div></section>
+
+    <Section id="about" eyebrow="01 — About" title={<>I care about the <em>details</em> that make systems dependable.</>}><div className="about-grid"><p className="body-large">{profile.bio} My work blends computer-science fundamentals with a product mindset: understand the constraints, simplify the hard parts, and leave every system clearer than I found it.</p><div className="principles">{['Correctness before cleverness', 'Performance with observability', 'Simple interfaces, strong foundations'].map((item, i) => <div key={item}><span>0{i + 1}</span>{item}</div>)}</div></div></Section>
+
+    <Section id="experience" eyebrow="02 — Journey" title={<>A record of <em>building</em> and learning.</>}><div className="timeline">{experience.map((item, i) => <motion.article key={item.period} className="timeline-item" initial={{ opacity: 0, x: -18 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * .1 }}><div className="period">{item.period}</div><div><h3>{item.role}</h3><p className="company">{item.company}</p><p>{item.text}</p></div></motion.article>)}</div></Section>
+
+    <section className="impact-band"><p className="eyebrow">Engineering impact</p><div className="impact-grid">{impact.map(item => <div key={item.label}><strong><Counter value={item.value} suffix={item.suffix} /></strong><p>{item.label}</p></div>)}</div></section>
+
+    <Section id="skills" eyebrow="03 — Toolkit" title={<>Fluent in the building <em>blocks</em> of backend engineering.</>}><div className="skill-grid">{Object.entries(skills).map(([group, entries]) => <article key={group} className="glass-card"><h3>{group}</h3><div>{entries.map(s => <span className="skill" key={s}>{s}</span>)}</div></article>)}</div><div className="tech-row">{tech.map(({ icon: Icon, name }) => <div key={name}><Icon /><span>{name}</span></div>)}</div></Section>
+
+    <Section id="projects" eyebrow="04 — Selected work" title={<>Projects with a <em>systems</em> mindset.</>}><div className="filters">{categories.map(c => <button key={c} className={filter === c ? 'selected' : ''} onClick={() => setFilter(c)}>{c}</button>)}</div><motion.div layout className="project-grid">{filtered.map((project, i) => <motion.article layout key={project.title} className="project-card project-card--text" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * .06 }}><div className="project-index">0{i + 1}<span>{project.category}</span></div><div className="project-content"><h3>{project.title}</h3><p>{project.description}</p><div className="tags">{project.tags.map(t => <span key={t}>{t}</span>)}</div>{(project.github || project.demo) && <div className="project-links">{project.github && <a href={project.github} target="_blank" rel="noreferrer"><Github size={17} /> Source</a>}{project.demo && <a href={project.demo} target="_blank" rel="noreferrer">Live demo <ExternalLink size={15} /></a>}</div>}</div></motion.article>)}</motion.div></Section>
+
+    <Section id="achievements" eyebrow="05 — Beyond the code" title={<>Driven by <em>craft,</em> curiosity, and momentum.</>}><div className="achievements">{achievements.map((a, i) => <article key={a}><Award /><span>0{i + 1}</span><p>{a}</p></article>)}</div></Section>
+
+    <Section id="gallery" eyebrow="06 — Gallery" title={<>A little bit <em>behind</em> the scenes.</>}><div className="gallery">{gallery.map((photo, i) => <button key={photo.src} onClick={() => setLightbox(photo.src)} className={`gallery-item g-${i + 1}`}><img src={photo.src} alt={photo.alt} onError={imageFallback} /><span>{photo.alt} <ArrowUpRight size={16} /></span></button>)}</div></Section>
+
+    <section id="resume" className="resume-card"><div><p className="eyebrow">Resume</p><h2>A fuller look at<br /><em>my experience.</em></h2></div><a className="button primary" href={profile.resume} target="_blank" rel="noreferrer"><ExternalLink size={18} /> View résumé</a></section>
+
+    <Section id="contact" eyebrow="07 — Contact" title={<>Have an ambitious backend problem?<br /><em>Let’s build it.</em></>}><div className="contact-grid"><div><p className="body-large">I’m always glad to connect with thoughtful teams building things that matter.</p><a className="email-link" href={profile.socials.email}>{profile.email} <ArrowUpRight /></a><div className="socials"><a href={profile.socials.github} target="_blank" rel="noreferrer" aria-label="GitHub"><Github /></a><a href={profile.socials.linkedin} target="_blank" rel="noreferrer" aria-label="LinkedIn"><Linkedin /></a><a href={profile.socials.email} aria-label="Email"><Mail /></a></div></div><form onSubmit={submit} className="contact-form"><label>Name<input required name="name" placeholder="Your name" /></label><label>Email<input required type="email" name="email" placeholder="you@company.com" /></label><label>What are you building?<textarea required name="message" rows={4} placeholder="Tell me a little about it…" /></label><button className="button primary" type="submit">{sent ? 'Message received — thank you!' : <>Send message <Send size={17} /></>}</button></form></div></Section>
+    <footer><span>© {new Date().getFullYear()} {profile.name}</span><span>Designed & engineered with intention.</span><a href="#home">Back to top ↑</a></footer>
+    <AnimatePresence>{lightbox && <motion.div className="lightbox" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setLightbox(null)}><button aria-label="Close image"><X /></button><img src={lightbox} alt="Gallery preview" /></motion.div>}</AnimatePresence>
+  </main>
+}
